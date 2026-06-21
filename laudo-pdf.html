@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laudo de Avaliação</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 2cm;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #1a1a1a;
+      line-height: 1.6;
+      background: white;
+      padding: 2cm;
+    }
+    
+    /* CABEÇALHO */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid #1e40af;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .header-logo {
+      flex: 1;
+    }
+    
+    .header-logo h1 {
+      font-size: 24px;
+      color: #1e40af;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .header-logo p {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    
+    .header-info {
+      text-align: right;
+    }
+    
+    .header-info .numero {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1e40af;
+      margin-bottom: 4px;
+    }
+    
+    .header-info .data {
+      font-size: 12px;
+      color: #64748b;
+    }
+    
+    /* SEÇÕES */
+    .secao {
+      margin-bottom: 28px;
+      page-break-inside: avoid;
+    }
+    
+    .secao-titulo {
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+      background: #1e40af;
+      padding: 8px 16px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .secao-conteudo {
+      padding: 0 4px;
+    }
+    
+    /* TABELA DE DADOS */
+    .tabela-dados {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .tabela-dados tr {
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .tabela-dados td {
+      padding: 10px 8px;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    
+    .tabela-dados td:first-child {
+      font-weight: 600;
+      color: #475569;
+      width: 40%;
+    }
+    
+    .tabela-dados td:last-child {
+      color: #1a1a1a;
+    }
+    
+    /* RESULTADOS DESTACADOS */
+    .resultado-destaque {
+      background: #f0f9ff;
+      border-left: 4px solid #1e40af;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    
+    .resultado-linha {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 13px;
+    }
+    
+    .resultado-linha strong {
+      color: #1e40af;
+      font-weight: 700;
+    }
+    
+    .resultado-final {
+      background: #1e40af;
+      color: white;
+      padding: 16px;
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .resultado-final .label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .resultado-final .valor {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    /* FUNDAMENTAÇÃO */
+    .fundamentacao-texto {
+      font-size: 13px;
+      line-height: 1.8;
+      text-align: justify;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 6px;
+    }
+    
+    /* ASSINATURA */
+    .assinatura {
+      margin-top: 60px;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+    
+    .assinatura-linha {
+      width: 300px;
+      margin: 0 auto;
+      border-top: 1px solid #1a1a1a;
+      padding-top: 8px;
+    }
+    
+    .assinatura-nome {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    
+    .assinatura-creci {
+      font-size: 12px;
+      color: #64748b;
+    }
+    
+    /* RODAPÉ */
+    .footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 10px;
+      color: #94a3b8;
+      text-align: center;
+    }
+    
+    /* BOTÃO IMPRIMIR */
+    .btn-imprimir {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #059669;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+    }
+    
+    .btn-imprimir:hover {
+      background: #047857;
+    }
+    
+    @media print {
+      .btn-imprimir { display: none; }
+      body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+
+  <!-- CABEÇALHO -->
+  <div class="header">
+    <div class="header-logo">
+      <h1>Laudo de Avaliação Imobiliária</h1>
+      <p>Método da Capitalização da Renda</p>
+    </div>
+    <div class="header-info">
+      <div class="numero" id="pdf-numero">Nº —</div>
+      <div class="data" id="pdf-data">Data: —</div>
+    </div>
+  </div>
+
+  <!-- IDENTIFICAÇÃO -->
+  <div class="secao">
+    <div class="secao-titulo">Identificação</div>
+    <div class="secao-conteudo">
+      <table class="tabela-dados">
+        <tr>
+          <td>Corretor responsável</td>
+          <td id="pdf-corretor">—</td>
+        </tr>
+        <tr>
+          <td>CRECI</td>
+          <td id="pdf-creci">—</td>
+        </tr>
+        <tr>
+          <td>Contato</td>
+          <td id="pdf-contato">—</td>
+        </tr>
+        <tr>
+          <td>Solicitante</td>
+          <td id="pdf-solicitante">—</td>
+        </tr>
+        <tr>
+          <td>Proprietário</td>
+          <td id="pdf-proprietario">—</td>
+        </tr>
+        <tr>
+          <td>Finalidade</td>
+          <td id="pdf-finalidade">—</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- IMÓVEL -->
+  <div class="secao">
+    <div class="secao-titulo">Imóvel Avaliando</div>
+    <div class="secao-conteudo">
+      <table class="tabela-dados">
+        <tr>
+          <td>Endereço</td>
+          <td id="pdf-endereco">—</td>
+        </tr>
+        <tr>
+          <td>Tipo</td>
+          <td id="pdf-tipo">—</td>
+        </tr>
+        <tr>
+          <td>Área construída</td>
+          <td id="pdf-area">—</td>
+        </tr>
+        <tr>
+          <td>Dormitórios</td>
+          <td id="pdf-dorm">—</td>
+        </tr>
+        <tr>
+          <td>Padrão construtivo</td>
+          <td id="pdf-padrao">—</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- CAP RATE -->
+  <div class="secao">
+    <div class="secao-titulo">Cap Rate Apurado</div>
+    <div class="secao-conteudo">
+      <div class="resultado-destaque">
+        <div class="resultado-linha">
+          <span>Cap rate anual adotado</span>
+          <strong id="pdf-caprate">—</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCAÇÃO -->
+  <div class="secao" id="secao-locacao">
+    <div class="secao-titulo">Avaliação para Locação</div>
+    <div class="secao-conteudo">
+      <div class="resultado-destaque">
+        <div class="resultado-linha">
+          <span>Aluguel bruto base</span>
+          <strong id="pdf-loc-bruto">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>(-) Vacância</span>
+          <strong id="pdf-loc-vacancia">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>(-) Administração</span>
+          <strong id="pdf-loc-admin">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>Aluguel líquido estimado</span>
+          <strong id="pdf-loc-liquido">R$ 0,00</strong>
+        </div>
+      </div>
+      <div class="resultado-final">
+        <span class="label">Resultado adotado — Locação</span>
+        <span class="valor" id="pdf-loc-final">R$ 0,00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENDA -->
+  <div class="secao" id="secao-venda">
+    <div class="secao-titulo">Avaliação para Venda</div>
+    <div class="secao-conteudo">
+      <div class="resultado-destaque">
+        <div class="resultado-linha">
+          <span>Aluguel mensal de referência</span>
+          <strong id="pdf-venda-aluguel">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>Cap rate utilizado</span>
+          <strong id="pdf-venda-cap">—</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>Aluguel anualizado (×12)</span>
+          <strong id="pdf-venda-anual">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>Valor estimado</span>
+          <strong id="pdf-venda-valor">R$ 0,00</strong>
+        </div>
+      </div>
+      <div class="resultado-final">
+        <span class="label">Valor final adotado — Venda</span>
+        <span class="valor" id="pdf-venda-final">R$ 0,00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FUNDAMENTAÇÃO -->
+  <div class="secao">
+    <div class="secao-titulo">Fundamentação e Conclusão</div>
+    <div class="secao-conteudo">
+      <div class="fundamentacao-texto" id="pdf-fundamentacao">
+        —
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSINATURA -->
+  <div class="assinatura">
+    <div class="assinatura-linha">
+      <div class="assinatura-nome" id="pdf-assinatura-nome">—</div>
+      <div class="assinatura-creci" id="pdf-assinatura-creci">—</div>
+    </div>
+  </div>
+
+  <!-- RODAPÉ -->
+  <div class="footer">
+    Este documento expressa a opinião fundamentada do corretor signatário. Não constitui laudo técnico nos termos da NBR 14653.
+  </div>
+
+  <script>
+    // Busca referência da URL
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref') || 'LA-2026-0001';
+    
+    // Carrega dados do localStorage
+    const dadosJSON = localStorage.getItem(`laudo_${ref}`);
+    const dados = dadosJSON ? JSON.parse(dadosJSON) : null;
+    
+    if (!dados) {
+      alert('Laudo não encontrado. Volte e salve primeiro.');
+      window.close();
+    }
+    
+    // Preenche o PDF
+    document.getElementById('pdf-numero').textContent = `Nº ${ref}`;
+    document.getElementById('pdf-data').textContent = `Data: ${new Date(dados.data_salvamento).toLocaleDateString('pt-BR')}`;
+    
+    document.getElementById('pdf-corretor').textContent = dados.corretor.nome || '—';
+    document.getElementById('pdf-creci').textContent = dados.corretor.creci || '—';
+    document.getElementById('pdf-contato').textContent = dados.corretor.contato || '—';
+    document.getElementById('pdf-solicitante').textContent = `${dados.solicitante.nome || '—'} ${dados.solicitante.doc ? '· ' + dados.solicitante.doc : ''}`;
+    document.getElementById('pdf-proprietario').textContent = dados.proprietario.nome || '—';
+    
+    const finalidadeMap = {
+      'venda': 'Venda',
+      'locacao': 'Locação',
+      'venda_locacao': 'Venda e Locação'
+    };
+    document.getElementById('pdf-finalidade').textContent = finalidadeMap[dados.finalidade] || '—';
+    
+    document.getElementById('pdf-endereco').textContent = dados.imovel.endereco || '—';
+    document.getElementById('pdf-tipo').textContent = dados.imovel.tipo || '—';
+    document.getElementById('pdf-area').textContent = dados.imovel.area ? `${dados.imovel.area} m²` : '—';
+    document.getElementById('pdf-dorm').textContent = dados.imovel.dormitorios || '—';
+    document.getElementById('pdf-padrao').textContent = dados.imovel.padrao || '—';
+    
+    const capRate = parseFloat(dados.cap_rate) || 0;
+    document.getElementById('pdf-caprate').textContent = capRate > 0 ? `${capRate.toFixed(2)}% a.a.` : '—';
+    
+    // Locação
+    const locAluguel = parseFloat(dados.locacao.aluguel) || 0;
+    const locVacancia = parseFloat(dados.locacao.vacancia) || 0;
+    const locAdmin = parseFloat(dados.locacao.admin) || 0;
+    const locLiquido = dados.locacao.liquido || 0;
+    
+    const vacanciaValor = locAluguel * (locVacancia / 100);
+    const adminValor = locAluguel * (locAdmin / 100);
+    
+    document.getElementById('pdf-loc-bruto').textContent = formatarMoeda(locAluguel);
+    document.getElementById('pdf-loc-vacancia').textContent = formatarMoeda(vacanciaValor);
+    document.getElementById('pdf-loc-admin').textContent = formatarMoeda(adminValor);
+    document.getElementById('pdf-loc-liquido').textContent = formatarMoeda(locLiquido);
+    document.getElementById('pdf-loc-final').textContent = formatarMoeda(locLiquido);
+    
+    // Venda
+    const vendaAluguel = parseFloat(dados.venda.aluguel) || 0;
+    const vendaAnual = vendaAluguel * 12;
+    const vendaValor = capRate > 0 ? vendaAnual / (capRate / 100) : 0;
+    
+    document.getElementById('pdf-venda-aluguel').textContent = formatarMoeda(vendaAluguel);
+    document.getElementById('pdf-venda-cap').textContent = capRate > 0 ? `${capRate.toFixed(2)}% a.a.` : '—';
+    document.getElementById('pdf-venda-anual').textContent = formatarMoeda(vendaAnual);
+    document.getElementById('pdf-venda-valor').textContent = formatarMoeda(vendaValor);
+    document.getElementById('pdf-venda-final').textContent = formatarMoeda(vendaValor);
+    
+    // Fundamentação
+    const fundamentacaoPadrao = `Avaliação elaborada com base no método da capitalização da renda, considerando o valor de mercado e/ou a renda locativa do imóvel, apurados por amostras de mercado e/ou parâmetros informados pelo corretor responsável.\n\nEste documento representa uma avaliação de caráter opinativo, elaborada pelo corretor de imóveis responsável com base em metodologia de mercado, não substituindo laudo técnico de engenharia de avaliações quando exigido por lei ou por instituição financeira.`;
+    
+    document.getElementById('pdf-fundamentacao').textContent = dados.fundamentacao || fundamentacaoPadrao;
+    
+    // Assinatura
+    document.getElementById('pdf-assinatura-nome').textContent = dados.corretor.nome || '—';
+    document.getElementById('pdf-assinatura-creci').textContent = `CRECI ${dados.corretor.creci || '—'}`;
+    
+    function formatarMoeda(v) {
+      if (!v && v !== 0) return '—';
+      return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+    
+    // Auto-print após 1 segundo
+    setTimeout(() => {
+      window.print();
+    }, 1000);
+  </script>
+
+</body>
+</html>
