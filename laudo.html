@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Laudo — Avaliação Imobiliária</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+      line-height: 1.5;
+    }
+    .topo-fixo {
+      position: sticky;
+      top: 0;
+      background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .btn-voltar {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 22px;
+      cursor: pointer;
+    }
+    .topo-info { flex: 1; }
+    .topo-referencia { font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600; }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 24px 16px;
+      padding-bottom: 100px;
+    }
+    .etapa {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .etapa-titulo { font-size: 20px; margin-bottom: 4px; }
+    .etapa-descricao { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+    .grupo {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .grupo legend {
+      font-weight: 600;
+      font-size: 14px;
+      padding: 0 8px;
+      color: #1e40af;
+    }
+    .campo {
+      display: block;
+      margin-bottom: 16px;
+    }
+    .campo span {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .campo-input, .campo-select, .campo-textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .campo-input:focus, .campo-select:focus, .campo-textarea:focus {
+      outline: none;
+      border-color: #1e40af;
+      box-shadow: 0 0 0 3px #dbeafe;
+    }
+    .campo-linha {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .campo-linha-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .campo-ajuda {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-primario { background: #1e40af; color: white; }
+    .btn-primario:hover { background: #1e3a8a; }
+    .btn-secundario { background: transparent; border-color: #e2e8f0; }
+    .btn-secundario:hover { background: #f8fafc; }
+    .btn-bloco { width: 100%; }
+    .rodape-fixo {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      z-index: 100;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+    }
+    .rodape-fixo .btn { flex: 1; }
+    .aviso-box {
+      background: #fef3c7;
+      border-left: 4px solid #d97706;
+      padding: 16px;
+      border-radius: 6px;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    .radio-grupo {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .radio-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .radio-card:hover { border-color: #1e40af; }
+    .radio-card input { accent-color: #1e40af; }
+    @media (max-width: 600px) {
+      .campo-linha, .campo-linha-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topo-fixo">
+    <button class="btn-voltar" onclick="window.location.href='index.html'">‹</button>
+    <div class="topo-info">
+      <div class="topo-referencia" id="topo-referencia">LA-2026-0001</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="etapa">
+      <h2 class="etapa-titulo">1. Dados do Laudo</h2>
+      <p class="etapa-descricao">Corretor, solicitante, proprietário e imóvel</p>
+
+      <fieldset class="grupo">
+        <legend>Corretor responsável</legend>
+        <label class="campo">
+          <span>Nome</span>
+          <input type="text" id="corretor_nome" class="campo-input">
+        </label>
+        <div class="campo-linha">
+          <label class="campo">
+            <span>CRECI</span>
+            <input type="text" id="corretor_creci" class="campo-input">
+          </label>
+          <label class="campo">
+            <span>Data</span>
+            <input type="date" id="corretor_data" class="campo-input">
+          </label>
+        </div>
+        <label class="campo">
+          <span>Telefone / e-mail</span>
+          <input type="text" id="corretor_contato" class="campo-input">
+        </label>
+      </fieldset>
+
+      <fieldset class="grupo">
+        <legend>Solicitante</legend>
+        <label class="campo">
+          <span>Nome</span>
+          <input type="text" id="solicitante_nome" class="campo-input">
+        </label>
+        <label class="campo">
+          <span>CPF/CNPJ</span>
+          <input type="text" id="solicitante_doc" class="campo-input">
+        </label>
+      </fieldset>
+
+      <fieldset class="grupo">
+        <legend>Proprietário</legend>
+        <label class="campo">
+          <span>Nome</span>
+          <input type="text" id="proprietario_nome" class="campo-input">
+        </label>
+        <label class="campo">
+          <span>CPF/CNPJ</span>
+          <input type="text" id="proprietario_doc" class="campo-input">
+        </label>
+      </fieldset>
+
+      <fieldset class="grupo">
+        <legend>Imóvel</legend>
+        <label class="campo">
+          <span>Endereço completo</span>
+          <input type="text" id="imovel_endereco" class="campo-input">
+        </label>
+        <label class="campo">
+          <span>Tipo do imóvel</span>
+          <select id="imovel_tipo" class="campo-select">
+            <option value="">Selecione...</option>
+            <option value="apartamento">Apartamento</option>
+            <option value="casa">Casa</option>
+            <option value="sala_comercial">Sala / Loja comercial</option>
+            <option value="galpao">Galpão</option>
+            <option value="terreno">Terreno</option>
+          </select>
+        </label>
+        <div class="campo-linha">
+          <label class="campo">
+            <span>Área construída (m²)</span>
+            <input type="number" id="imovel_area" class="campo-input" step="0.01">
+          </label>
+          <label class="campo">
+            <span>Dormitórios</span>
+            <input type="number" id="imovel_dorm" class="campo-input">
+          </label>
+        </div>
+        <label class="campo">
+          <span>Padrão construtivo</span>
+          <select id="imovel_padrao" class="campo-select">
+            <option value="">Não informado</option>
+            <option value="baixo">Baixo / popular</option>
+            <option value="medio">Médio</option>
+            <option value="alto">Alto / luxo</option>
+          </select>
+        </label>
+      </fieldset>
+
+      <fieldset class="grupo">
+        <legend>Finalidade</legend>
+        <div class="radio-grupo">
+          <label class="radio-card">
+            <input type="radio" name="finalidade" value="venda">
+            <span>Venda</span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="finalidade" value="locacao">
+            <span>Locação</span>
+          </label>
+          <label class="radio-card">
+            <input type="radio" name="finalidade" value="venda_locacao">
+            <span>Venda e locação</span>
+          </label>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="etapa">
+      <h2 class="etapa-titulo">2. Cap Rate</h2>
+      <p class="etapa-descricao">Taxa de capitalização anual (%)</p>
+      <label class="campo">
+        <span>Cap rate anual (%)</span>
+        <input type="number" id="cap_rate" class="campo-input" step="0.01" placeholder="Ex: 7.0">
+        <small class="campo-ajuda">Taxa de retorno anual sobre o valor do imóvel</small>
+      </label>
+    </div>
+
+    <div class="etapa">
+      <h2 class="etapa-titulo">3. Avaliação para Locação</h2>
+      <p class="etapa-descricao">Aluguel sugerido</p>
+      <label class="campo">
+        <span>Aluguel base de mercado (R$/mês)</span>
+        <input type="number" id="loc_aluguel" class="campo-input" step="0.01">
+      </label>
+      <label class="campo">
+        <span>Taxa de vacância (%)</span>
+        <input type="number" id="loc_vacancia" class="campo-input" step="0.01" value="8.33">
+      </label>
+      <label class="campo">
+        <span>Taxa de administração (%)</span>
+        <input type="number" id="loc_admin" class="campo-input" step="0.01" value="10">
+      </label>
+      <div class="aviso-box">
+        <strong>💡 Dica:</strong> O aluguel líquido = aluguel bruto - vacância - administração
+      </div>
+    </div>
+
+    <div class="etapa">
+      <h2 class="etapa-titulo">4. Avaliação para Venda</h2>
+      <p class="etapa-descricao">Valor pelo método da capitalização da renda</p>
+      <label class="campo">
+        <span>Aluguel mensal (R$)</span>
+        <input type="number" id="venda_aluguel" class="campo-input" step="0.01">
+      </label>
+      <div class="aviso-box">
+        <strong>Fórmula:</strong> Valor = (Aluguel anual) ÷ Cap rate<br>
+        Exemplo: R$ 24.000 ÷ 0,07 = R$ 342.857
+      </div>
+    </div>
+
+    <div class="etapa">
+      <h2 class="etapa-titulo">5. Conclusão</h2>
+      <p class="etapa-descricao">Fundamentação do corretor</p>
+      <label class="campo">
+        <textarea id="fundamentacao" class="campo-textarea" rows="6" placeholder="Descreva os critérios adotados, limitações da pesquisa, fatores relevantes..."></textarea>
+      </label>
+    </div>
+  </main>
+
+  <footer class="rodape-fixo">
+    <button class="btn btn-secundario" onclick="window.location.href='index.html'">← Voltar</button>
+    <button class="btn btn-primario" onclick="salvarLaudo()">💾 Salvar</button>
+  </footer>
+
+  <script>
+    // Carrega referência da sessionStorage
+    const ref = sessionStorage.getItem('laudo_referencia') || 'LA-2026-0001';
+    document.getElementById('topo-referencia').textContent = ref;
+
+    // Define data de hoje
+    document.getElementById('corretor_data').valueAsDate = new Date();
+
+    function salvarLaudo() {
+      const dados = {
+        referencia: ref,
+        data_salvamento: new Date().toISOString(),
+        corretor: {
+          nome: document.getElementById('corretor_nome').value,
+          creci: document.getElementById('corretor_creci').value,
+          data: document.getElementById('corretor_data').value,
+          contato: document.getElementById('corretor_contato').value
+        },
+        solicitante: {
+          nome: document.getElementById('solicitante_nome').value,
+          doc: document.getElementById('solicitante_doc').value
+        },
+        proprietario: {
+          nome: document.getElementById('proprietario_nome').value,
+          doc: document.getElementById('proprietario_doc').value
+        },
+        imovel: {
+          endereco: document.getElementById('imovel_endereco').value,
+          tipo: document.getElementById('imovel_tipo').value,
+          area: document.getElementById('imovel_area').value,
+          dormitorios: document.getElementById('imovel_dorm').value,
+          padrao: document.getElementById('imovel_padrao').value
+        },
+        finalidade: document.querySelector('input[name="finalidade"]:checked')?.value,
+        cap_rate: document.getElementById('cap_rate').value,
+        locacao: {
+          aluguel: document.getElementById('loc_aluguel').value,
+          vacancia: document.getElementById('loc_vacancia').value,
+          admin: document.getElementById('loc_admin').value
+        },
+        venda: {
+          aluguel: document.getElementById('venda_aluguel').value
+        },
+        fundamentacao: document.getElementById('fundamentacao').value
+      };
+
+      // Salva no localStorage
+      const chave = `laudo_${ref}`;
+      localStorage.setItem(chave, JSON.stringify(dados));
+      
+      alert(`Laudo ${ref} salvo com sucesso!\n\n(A funcionalidade de PDF será implementada na próxima fase)`);
+      
+      // Volta para o início
+      window.location.href = 'index.html';
+    }
+  </script>
+
+</body>
+</html>
