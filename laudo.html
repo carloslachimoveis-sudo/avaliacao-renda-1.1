@@ -414,11 +414,75 @@
   </footer>
 
   <script>
-    const ref = sessionStorage.getItem('laudo_referencia') || 'LA-2026-0001';
+       const ref = sessionStorage.getItem('laudo_referencia') || 'LA-2026-0001';
     document.getElementById('topo-referencia').textContent = ref;
     document.getElementById('corretor_data').valueAsDate = new Date();
 
     let aluguelLiquidoAtual = 0;
+    let modoEdicao = sessionStorage.getItem('laudo_retomar') === 'true';
+
+    // Se estiver retomando um laudo, carrega os dados
+    if (modoEdicao) {
+      carregarLaudoExistente(ref);
+      sessionStorage.removeItem('laudo_retomar'); // limpa a flag
+    }
+
+    function carregarLaudoExistente(ref) {
+      const dadosJSON = localStorage.getItem('laudo_' + ref);
+      if (!dadosJSON) return;
+      const d = JSON.parse(dadosJSON);
+
+      // Corretor
+      if(d.corretor) {
+        document.getElementById('corretor_nome').value = d.corretor.nome || '';
+        document.getElementById('corretor_creci').value = d.corretor.creci || '';
+        if(d.corretor.data) document.getElementById('corretor_data').value = d.corretor.data;
+        document.getElementById('corretor_contato').value = d.corretor.contato || '';
+      }
+      // Solicitante e Proprietário
+      if(d.solicitante) {
+        document.getElementById('solicitante_nome').value = d.solicitante.nome || '';
+        document.getElementById('solicitante_doc').value = d.solicitante.doc || '';
+      }
+      if(d.proprietario) {
+        document.getElementById('proprietario_nome').value = d.proprietario.nome || '';
+        document.getElementById('proprietario_doc').value = d.proprietario.doc || '';
+      }
+      // Imóvel
+      if(d.imovel) {
+        document.getElementById('imovel_endereco').value = d.imovel.endereco || '';
+        document.getElementById('imovel_tipo').value = d.imovel.tipo || '';
+        document.getElementById('imovel_area').value = d.imovel.area || '';
+        document.getElementById('imovel_dorm').value = d.imovel.dormitorios || '';
+        document.getElementById('imovel_padrao').value = d.imovel.padrao || '';
+      }
+      // Finalidade
+      if(d.finalidade) {
+        const radio = document.querySelector(`input[name="finalidade"][value="${d.finalidade}"]`);
+        if (radio) radio.checked = true;
+      }
+      // Cap Rate
+      if(d.cap_rate) {
+        document.getElementById('cap_rate').value = d.cap_rate;
+      }
+      // Locação
+      if(d.locacao) {
+        document.getElementById('loc_aluguel').value = d.locacao.aluguel || '';
+        document.getElementById('loc_vacancia').value = d.locacao.vacancia || '8.33';
+        document.getElementById('loc_admin').value = d.locacao.admin || '10';
+        calcularLocacao(); // recalcula os visuais
+      }
+      // Venda
+      if(d.venda) {
+        document.getElementById('venda_aluguel').value = d.venda.aluguel || '';
+        document.getElementById('venda_aluguel').dataset.editado = 'true'; // evita sobrescrever
+        calcularVenda();
+      }
+      // Fundamentação
+      if(d.fundamentacao) {
+        document.getElementById('fundamentacao').value = d.fundamentacao;
+      }
+    }
 
     function calcularLocacao() {
       const aluguel = parseFloat(document.getElementById('loc_aluguel').value) || 0;
@@ -436,7 +500,6 @@
       document.getElementById('res_admin').textContent = formatarMoeda(adminValor);
       document.getElementById('res_liquido').textContent = formatarMoeda(liquido);
       
-      // ATUALIZAÇÃO AUTOMÁTICA: preenche o campo de venda com o aluguel líquido
       const campoVendaAluguel = document.getElementById('venda_aluguel');
       if (!campoVendaAluguel.dataset.editado) {
         campoVendaAluguel.value = liquido.toFixed(2);
@@ -475,58 +538,6 @@
         calcularVenda();
       });
     });
-
-    function salvarLaudo() {
-      const dados = {
-        referencia: ref,
-        data_salvamento: new Date().toISOString(),
-        corretor: {
-          nome: document.getElementById('corretor_nome').value,
-          creci: document.getElementById('corretor_creci').value,
-          data: document.getElementById('corretor_data').value,
-          contato: document.getElementById('corretor_contato').value
-        },
-        solicitante: {
-          nome: document.getElementById('solicitante_nome').value,
-          doc: document.getElementById('solicitante_doc').value
-        },
-        proprietario: {
-          nome: document.getElementById('proprietario_nome').value,
-          doc: document.getElementById('proprietario_doc').value
-        },
-        imovel: {
-          endereco: document.getElementById('imovel_endereco').value,
-          tipo: document.getElementById('imovel_tipo').value,
-          area: document.getElementById('imovel_area').value,
-          dormitorios: document.getElementById('imovel_dorm').value,
-          padrao: document.getElementById('imovel_padrao').value
-        },
-        finalidade: document.querySelector('input[name="finalidade"]:checked')?.value,
-        cap_rate: document.getElementById('cap_rate').value,
-        locacao: {
-          aluguel: document.getElementById('loc_aluguel').value,
-          vacancia: document.getElementById('loc_vacancia').value,
-          admin: document.getElementById('loc_admin').value,
-          liquido: aluguelLiquidoAtual
-        },
-        venda: {
-          aluguel: document.getElementById('venda_aluguel').value,
-          valor: document.getElementById('venda_valor').textContent
-        },
-        fundamentacao: document.getElementById('fundamentacao').value
-      };
-
-      localStorage.setItem(`laudo_${ref}`, JSON.stringify(dados));
-      alert(`✅ Laudo ${ref} salvo com sucesso!`);
-      window.location.href = 'index.html';
-    }
-
-    function gerarPDF() {
-      // Salva dados atualizados
-      salvarLaudoSilencioso();
-      // Abre a página de PDF
-      window.open(`laudo-pdf.html?ref=${ref}`, '_blank');
-    }
 
     function salvarLaudoSilencioso() {
       const dados = {
@@ -567,7 +578,18 @@
         },
         fundamentacao: document.getElementById('fundamentacao').value
       };
-      localStorage.setItem(`laudo_${ref}`, JSON.stringify(dados));
+      localStorage.setItem('laudo_' + ref, JSON.stringify(dados));
+    }
+
+    function salvarLaudo() {
+      salvarLaudoSilencioso();
+      alert(`✅ Laudo ${ref} salvo/atualizado com sucesso!`);
+      window.location.href = 'laudos.html'; // vai para a lista em vez do index
+    }
+
+    function gerarPDF() {
+      salvarLaudoSilencioso();
+      window.open(`laudo-pdf.html?ref=${ref}`, '_blank');
     }
   </script>
 
