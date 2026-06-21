@@ -437,17 +437,16 @@
       document.getElementById('modal-novo-laudo').style.display = 'flex';
     }
 
-    function confirmarNovoLaudo() {
-      const finalidade = document.getElementById('select-finalidade').value;
-      if (!finalidade) {
-        alert('Selecione a finalidade da avaliação.');
-        return;
-      }
-      sessionStorage.setItem('laudo_referencia', referenciaPendente);
-      sessionStorage.setItem('laudo_finalidade', finalidade);
-      alert(`Laudo ${referenciaPendente} iniciado!\nFinalidade: ${finalidade}\n\n(A tela do laudo será criada na próxima fase)`);
-      fecharModal('modal-novo-laudo');
-    }
+   function confirmarNovoLaudo() {
+  const finalidade = document.getElementById('select-finalidade').value;
+  if (!finalidade) {
+    alert('Selecione a finalidade da avaliação.');
+    return;
+  }
+  sessionStorage.setItem('laudo_referencia', referenciaPendente);
+  sessionStorage.setItem('laudo_finalidade', finalidade);
+  window.location.href = 'laudo.html';
+}
 
     function fecharModal(id) {
       document.getElementById(id).style.display = 'none';
