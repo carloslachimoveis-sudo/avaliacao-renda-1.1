@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Novo Laudo — Avaliação Imobiliária</title>
+  <title>Novo Laudo</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -91,7 +91,6 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
-    .campo-linha-3 { grid-template-columns: 1fr 1fr 1fr; }
     .campo-ajuda {
       font-size: 11px;
       color: #64748b;
@@ -111,6 +110,15 @@
     .btn-secundario { background: transparent; border-color: #e2e8f0; }
     .btn-secundario:hover { background: #f8fafc; }
     .btn-bloco { width: 100%; }
+    .btn-destaque {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      font-size: 16px;
+      padding: 16px;
+    }
+    .btn-destaque:hover {
+      background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+    }
     .rodape-fixo {
       position: fixed;
       bottom: 0;
@@ -133,6 +141,20 @@
       margin: 16px 0;
       font-size: 13px;
     }
+    .resultado-box {
+      background: #dbeafe;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .resultado-linha {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(30,64,175,0.1);
+    }
+    .resultado-linha:last-child { border-bottom: none; }
+    .resultado-linha strong { color: #1e40af; }
     .radio-grupo {
       display: flex;
       flex-direction: column;
@@ -149,8 +171,24 @@
     }
     .radio-card:hover { border-color: #1e40af; }
     .radio-card input { accent-color: #1e40af; }
+    
+    /* ESTILOS PARA IMPRESSÃO/PDF */
+    @media print {
+      body { background: white; }
+      .topo-fixo, .rodape-fixo, .aviso-box, .btn { display: none !important; }
+      .container { padding: 0; max-width: 100%; }
+      .etapa { 
+        border: none; 
+        padding: 0; 
+        margin-bottom: 32px;
+        page-break-inside: avoid;
+      }
+      .grupo { border: 1px solid #ddd; }
+      .resultado-box { background: #f0f9ff; }
+    }
+    
     @media (max-width: 600px) {
-      .campo-linha, .campo-linha-3 { grid-template-columns: 1fr; }
+      .campo-linha { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -164,6 +202,7 @@
   </header>
 
   <main class="container">
+    <!-- ETAPA 1: DADOS -->
     <div class="etapa">
       <h2 class="etapa-titulo">1. Dados do Laudo</h2>
       <p class="etapa-descricao">Corretor, solicitante, proprietário e imóvel</p>
@@ -256,7 +295,7 @@
         <legend>Finalidade</legend>
         <div class="radio-grupo">
           <label class="radio-card">
-            <input type="radio" name="finalidade" value="venda">
+            <input type="radio" name="finalidade" value="venda" checked>
             <span>Venda</span>
           </label>
           <label class="radio-card">
@@ -271,6 +310,7 @@
       </fieldset>
     </div>
 
+    <!-- ETAPA 2: CAP RATE -->
     <div class="etapa">
       <h2 class="etapa-titulo">2. Cap Rate</h2>
       <p class="etapa-descricao">Taxa de capitalização anual (%)</p>
@@ -279,8 +319,13 @@
         <input type="number" id="cap_rate" class="campo-input" step="0.01" placeholder="Ex: 7.0">
         <small class="campo-ajuda">Taxa de retorno anual sobre o valor do imóvel</small>
       </label>
+      <div class="aviso-box">
+        <strong>💡 Referência SC:</strong><br>
+        Apartamentos: 6-8% a.a. · Casas: 5-7% a.a. · Comercial: 8-10% a.a.
+      </div>
     </div>
 
+    <!-- ETAPA 3: LOCAÇÃO -->
     <div class="etapa">
       <h2 class="etapa-titulo">3. Avaliação para Locação</h2>
       <p class="etapa-descricao">Aluguel sugerido</p>
@@ -291,16 +336,34 @@
       <label class="campo">
         <span>Taxa de vacância (%)</span>
         <input type="number" id="loc_vacancia" class="campo-input" step="0.01" value="8.33">
+        <small class="campo-ajuda">Padrão ≈ 1 mês/ano (8,33%)</small>
       </label>
       <label class="campo">
         <span>Taxa de administração (%)</span>
         <input type="number" id="loc_admin" class="campo-input" step="0.01" value="10">
       </label>
-      <div class="aviso-box">
-        <strong>💡 Dica:</strong> O aluguel líquido = aluguel bruto - vacância - administração
+      
+      <div class="resultado-box">
+        <div class="resultado-linha">
+          <span>Aluguel bruto</span>
+          <strong id="res_bruto">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>(-) Vacância</span>
+          <strong id="res_vacancia">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>(-) Administração</span>
+          <strong id="res_admin">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>Aluguel líquido</span>
+          <strong id="res_liquido">R$ 0,00</strong>
+        </div>
       </div>
     </div>
 
+    <!-- ETAPA 4: VENDA -->
     <div class="etapa">
       <h2 class="etapa-titulo">4. Avaliação para Venda</h2>
       <p class="etapa-descricao">Valor pelo método da capitalização da renda</p>
@@ -308,18 +371,45 @@
         <span>Aluguel mensal (R$)</span>
         <input type="number" id="venda_aluguel" class="campo-input" step="0.01">
       </label>
+      
+      <div class="resultado-box">
+        <div class="resultado-linha">
+          <span>Aluguel anual (×12)</span>
+          <strong id="venda_anual">R$ 0,00</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>Cap rate aplicado</span>
+          <strong id="venda_cap">—</strong>
+        </div>
+        <div class="resultado-linha">
+          <span>Valor estimado</span>
+          <strong id="venda_valor">R$ 0,00</strong>
+        </div>
+      </div>
+
       <div class="aviso-box">
-        <strong>Fórmula:</strong> Valor = (Aluguel anual) ÷ Cap rate<br>
+        <strong>📐 Fórmula:</strong> Valor = (Aluguel anual) ÷ Cap rate<br>
         Exemplo: R$ 24.000 ÷ 0,07 = R$ 342.857
       </div>
     </div>
 
+    <!-- ETAPA 5: CONCLUSÃO -->
     <div class="etapa">
       <h2 class="etapa-titulo">5. Conclusão</h2>
       <p class="etapa-descricao">Fundamentação do corretor</p>
       <label class="campo">
-        <textarea id="fundamentacao" class="campo-textarea" rows="6" placeholder="Descreva os critérios adotados, limitações da pesquisa, fatores relevantes..."></textarea>
+        <textarea id="fundamentacao" class="campo-textarea" rows="6" placeholder="Descreva os critérios adotados, limitações da pesquisa, fatores relevantes observados em campo..."></textarea>
       </label>
+    </div>
+
+    <!-- BOTÃO DE PDF -->
+    <div class="etapa" style="text-align: center; padding: 32px 24px;">
+      <button class="btn btn-destaque btn-bloco" onclick="gerarPDF()" style="margin-bottom: 12px;">
+        📄 Gerar PDF do Laudo
+      </button>
+      <p style="font-size: 12px; color: #64748b;">
+        O PDF será aberto no navegador. Use "Imprimir" para salvar como PDF ou imprimir.
+      </p>
     </div>
   </main>
 
@@ -329,12 +419,51 @@
   </footer>
 
   <script>
-    // Carrega referência da sessionStorage
     const ref = sessionStorage.getItem('laudo_referencia') || 'LA-2026-0001';
     document.getElementById('topo-referencia').textContent = ref;
-
-    // Define data de hoje
     document.getElementById('corretor_data').valueAsDate = new Date();
+
+    function calcularLocacao() {
+      const aluguel = parseFloat(document.getElementById('loc_aluguel').value) || 0;
+      const vacancia = parseFloat(document.getElementById('loc_vacancia').value) || 0;
+      const admin = parseFloat(document.getElementById('loc_admin').value) || 0;
+      
+      const vacanciaValor = aluguel * (vacancia / 100);
+      const adminValor = aluguel * (admin / 100);
+      const liquido = aluguel - vacanciaValor - adminValor;
+      
+      document.getElementById('res_bruto').textContent = formatarMoeda(aluguel);
+      document.getElementById('res_vacancia').textContent = formatarMoeda(vacanciaValor);
+      document.getElementById('res_admin').textContent = formatarMoeda(adminValor);
+      document.getElementById('res_liquido').textContent = formatarMoeda(liquido);
+    }
+
+    function calcularVenda() {
+      const aluguel = parseFloat(document.getElementById('venda_aluguel').value) || 0;
+      const capRate = parseFloat(document.getElementById('cap_rate').value) || 0;
+      
+      const anual = aluguel * 12;
+      let valor = 0;
+      if (capRate > 0) {
+        valor = anual / (capRate / 100);
+      }
+      
+      document.getElementById('venda_anual').textContent = formatarMoeda(anual);
+      document.getElementById('venda_cap').textContent = capRate > 0 ? capRate.toFixed(2) + '% a.a.' : '—';
+      document.getElementById('venda_valor').textContent = formatarMoeda(valor);
+    }
+
+    function formatarMoeda(v) {
+      return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    ['loc_aluguel', 'loc_vacancia', 'loc_admin'].forEach(id => {
+      document.getElementById(id).addEventListener('input', calcularLocacao);
+    });
+    
+    ['venda_aluguel', 'cap_rate'].forEach(id => {
+      document.getElementById(id).addEventListener('input', calcularVenda);
+    });
 
     function salvarLaudo() {
       const dados = {
@@ -366,22 +495,28 @@
         locacao: {
           aluguel: document.getElementById('loc_aluguel').value,
           vacancia: document.getElementById('loc_vacancia').value,
-          admin: document.getElementById('loc_admin').value
+          admin: document.getElementById('loc_admin').value,
+          liquido: document.getElementById('res_liquido').textContent
         },
         venda: {
-          aluguel: document.getElementById('venda_aluguel').value
+          aluguel: document.getElementById('venda_aluguel').value,
+          valor: document.getElementById('venda_valor').textContent
         },
         fundamentacao: document.getElementById('fundamentacao').value
       };
 
-      // Salva no localStorage
-      const chave = `laudo_${ref}`;
-      localStorage.setItem(chave, JSON.stringify(dados));
-      
-      alert(`Laudo ${ref} salvo com sucesso!\n\n(A funcionalidade de PDF será implementada na próxima fase)`);
-      
-      // Volta para o início
+      localStorage.setItem(`laudo_${ref}`, JSON.stringify(dados));
+      alert(`✅ Laudo ${ref} salvo com sucesso!`);
       window.location.href = 'index.html';
+    }
+
+    function gerarPDF() {
+      // Atualiza cálculos antes de gerar
+      calcularLocacao();
+      calcularVenda();
+      
+      // Abre diálogo de impressão (permite salvar como PDF)
+      window.print();
     }
   </script>
 
