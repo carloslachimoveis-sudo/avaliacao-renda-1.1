@@ -171,22 +171,16 @@
     }
     .radio-card:hover { border-color: #1e40af; }
     .radio-card input { accent-color: #1e40af; }
-    
-    /* ESTILOS PARA IMPRESSÃO/PDF */
-    @media print {
-      body { background: white; }
-      .topo-fixo, .rodape-fixo, .aviso-box, .btn { display: none !important; }
-      .container { padding: 0; max-width: 100%; }
-      .etapa { 
-        border: none; 
-        padding: 0; 
-        margin-bottom: 32px;
-        page-break-inside: avoid;
-      }
-      .grupo { border: 1px solid #ddd; }
-      .resultado-box { background: #f0f9ff; }
+    .auto-fill-badge {
+      display: inline-block;
+      background: #059669;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-left: 8px;
+      font-weight: 600;
     }
-    
     @media (max-width: 600px) {
       .campo-linha { grid-template-columns: 1fr; }
     }
@@ -368,8 +362,9 @@
       <h2 class="etapa-titulo">4. Avaliação para Venda</h2>
       <p class="etapa-descricao">Valor pelo método da capitalização da renda</p>
       <label class="campo">
-        <span>Aluguel mensal (R$)</span>
+        <span>Aluguel mensal (R$) <span class="auto-fill-badge">AUTO</span></span>
         <input type="number" id="venda_aluguel" class="campo-input" step="0.01">
+        <small class="campo-ajuda">Preenchido automaticamente com o aluguel líquido da etapa anterior. Você pode editar.</small>
       </label>
       
       <div class="resultado-box">
@@ -405,10 +400,10 @@
     <!-- BOTÃO DE PDF -->
     <div class="etapa" style="text-align: center; padding: 32px 24px;">
       <button class="btn btn-destaque btn-bloco" onclick="gerarPDF()" style="margin-bottom: 12px;">
-        📄 Gerar PDF do Laudo
+         Gerar PDF do Laudo
       </button>
       <p style="font-size: 12px; color: #64748b;">
-        O PDF será aberto no navegador. Use "Imprimir" para salvar como PDF ou imprimir.
+        O PDF será aberto em nova aba. Use "Imprimir" para salvar como PDF.
       </p>
     </div>
   </main>
@@ -423,6 +418,8 @@
     document.getElementById('topo-referencia').textContent = ref;
     document.getElementById('corretor_data').valueAsDate = new Date();
 
+    let aluguelLiquidoAtual = 0;
+
     function calcularLocacao() {
       const aluguel = parseFloat(document.getElementById('loc_aluguel').value) || 0;
       const vacancia = parseFloat(document.getElementById('loc_vacancia').value) || 0;
@@ -432,10 +429,19 @@
       const adminValor = aluguel * (admin / 100);
       const liquido = aluguel - vacanciaValor - adminValor;
       
+      aluguelLiquidoAtual = liquido;
+      
       document.getElementById('res_bruto').textContent = formatarMoeda(aluguel);
       document.getElementById('res_vacancia').textContent = formatarMoeda(vacanciaValor);
       document.getElementById('res_admin').textContent = formatarMoeda(adminValor);
       document.getElementById('res_liquido').textContent = formatarMoeda(liquido);
+      
+      // ATUALIZAÇÃO AUTOMÁTICA: preenche o campo de venda com o aluguel líquido
+      const campoVendaAluguel = document.getElementById('venda_aluguel');
+      if (!campoVendaAluguel.dataset.editado) {
+        campoVendaAluguel.value = liquido.toFixed(2);
+        calcularVenda();
+      }
     }
 
     function calcularVenda() {
@@ -462,7 +468,12 @@
     });
     
     ['venda_aluguel', 'cap_rate'].forEach(id => {
-      document.getElementById(id).addEventListener('input', calcularVenda);
+      document.getElementById(id).addEventListener('input', () => {
+        if (id === 'venda_aluguel') {
+          document.getElementById('venda_aluguel').dataset.editado = 'true';
+        }
+        calcularVenda();
+      });
     });
 
     function salvarLaudo() {
@@ -496,7 +507,7 @@
           aluguel: document.getElementById('loc_aluguel').value,
           vacancia: document.getElementById('loc_vacancia').value,
           admin: document.getElementById('loc_admin').value,
-          liquido: document.getElementById('res_liquido').textContent
+          liquido: aluguelLiquidoAtual
         },
         venda: {
           aluguel: document.getElementById('venda_aluguel').value,
@@ -511,12 +522,52 @@
     }
 
     function gerarPDF() {
-      // Atualiza cálculos antes de gerar
-      calcularLocacao();
-      calcularVenda();
-      
-      // Abre diálogo de impressão (permite salvar como PDF)
-      window.print();
+      // Salva dados atualizados
+      salvarLaudoSilencioso();
+      // Abre a página de PDF
+      window.open(`laudo-pdf.html?ref=${ref}`, '_blank');
+    }
+
+    function salvarLaudoSilencioso() {
+      const dados = {
+        referencia: ref,
+        data_salvamento: new Date().toISOString(),
+        corretor: {
+          nome: document.getElementById('corretor_nome').value,
+          creci: document.getElementById('corretor_creci').value,
+          data: document.getElementById('corretor_data').value,
+          contato: document.getElementById('corretor_contato').value
+        },
+        solicitante: {
+          nome: document.getElementById('solicitante_nome').value,
+          doc: document.getElementById('solicitante_doc').value
+        },
+        proprietario: {
+          nome: document.getElementById('proprietario_nome').value,
+          doc: document.getElementById('proprietario_doc').value
+        },
+        imovel: {
+          endereco: document.getElementById('imovel_endereco').value,
+          tipo: document.getElementById('imovel_tipo').value,
+          area: document.getElementById('imovel_area').value,
+          dormitorios: document.getElementById('imovel_dorm').value,
+          padrao: document.getElementById('imovel_padrao').value
+        },
+        finalidade: document.querySelector('input[name="finalidade"]:checked')?.value,
+        cap_rate: document.getElementById('cap_rate').value,
+        locacao: {
+          aluguel: document.getElementById('loc_aluguel').value,
+          vacancia: document.getElementById('loc_vacancia').value,
+          admin: document.getElementById('loc_admin').value,
+          liquido: aluguelLiquidoAtual
+        },
+        venda: {
+          aluguel: document.getElementById('venda_aluguel').value,
+          valor: document.getElementById('venda_valor').textContent
+        },
+        fundamentacao: document.getElementById('fundamentacao').value
+      };
+      localStorage.setItem(`laudo_${ref}`, JSON.stringify(dados));
     }
   </script>
 
